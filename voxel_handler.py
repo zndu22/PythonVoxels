@@ -76,6 +76,11 @@ class VoxelHandler:
     def update(self):
         self.ray_cast()
 
+    def check_point(position, self):
+        if self.app.world.get_index(self.app.player.position.x, self.app.player.position.y, self.app.player.position.z):
+            return True
+        else: return False
+
     def ray_cast(self):
         # start point
         x1, y1, z1 = self.app.player.position

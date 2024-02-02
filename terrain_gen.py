@@ -18,7 +18,7 @@ def get_height(x, z):
     f2, f4, f8 = f1 * 2, f1 * 4, f1 * 8
 
     if noise2(0.1 * x, 0.1 * z) < 0:
-        a1 /= 1.07
+        a1 /= 1.03
 
     height = 0
     height += noise2(x * f1, z * f1) * a1 + a1
