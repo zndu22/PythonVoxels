@@ -153,3 +153,6 @@ class VoxelHandler:
 
             return voxel_id, voxel_index, voxel_local_pos, chunk
         return 0, 0, 0, 0
+    
+    def isSolid(self):
+        return not self.get_voxel_id(glm.ivec3(self.app.player.position))[0] == 0
