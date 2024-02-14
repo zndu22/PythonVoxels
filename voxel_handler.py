@@ -74,18 +74,18 @@ class VoxelHandler:
         self.interaction_mode = not self.interaction_mode
 
     def update(self):
-        self.ray_cast()
+        self.ray_cast(self.app.player.position, self.app.player.forward, MAX_RAY_DIST)
 
     def check_point(position, self):
         if self.app.world.get_index(self.app.player.position.x, self.app.player.position.y, self.app.player.position.z):
             return True
         else: return False
 
-    def ray_cast(self):
+    def ray_cast(self, position, direction, maxDist):
         # start point
-        x1, y1, z1 = self.app.player.position
+        x1, y1, z1 = position
         # end point
-        x2, y2, z2 = self.app.player.position + self.app.player.forward * MAX_RAY_DIST
+        x2, y2, z2 = position + direction * maxDist
 
         current_voxel_pos = glm.ivec3(x1, y1, z1)
         self.voxel_id = 0

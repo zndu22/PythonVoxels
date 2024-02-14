@@ -7,6 +7,7 @@ class Player(Camera):
     def __init__(self, app, position=PLAYER_POS, yaw=-90, pitch=0):
         self.app = app
         super().__init__(position, yaw, pitch)
+        self.vel = glm.vec3()
 
     def update(self):
         self.keyboard_control()
@@ -31,18 +32,40 @@ class Player(Camera):
 
     def keyboard_control(self):
         key_state = pg.key.get_pressed()
-        vel = PLAYER_SPEED * self.app.delta_time
-        if key_state[pg.K_LSHIFT]:
-            vel *= 5
+        forwardXZ = glm.vec3(glm.cos(self.yaw), 0, glm.sin(self.yaw))
+        leftXZ = glm.cross(forwardXZ, glm.vec3(0, 1, 0))
+        solid = self.app.scene.world.voxel_handler.is_solid
+        # hitbox
+        h = [
+            solid(self.position + glm.vec3(0.25, 0.1, 0.25)), solid(self.position + glm.vec3(-0.25, 0.1, 0.25)),
+            solid(self.position + glm.vec3(-0.25, 0.1, -0.25)), solid(self.position + glm.vec3(0.25, 0.1, -0.25)),
+
+            solid(self.position + glm.vec3(0.25, -1.5, 0.25)), solid(self.position + glm.vec3(0.25, -1.5, -0.25)),
+            solid(self.position + glm.vec3(-0.25, -1.5, -0.25)), solid(self.position + glm.vec3(0.25, -1.5, -0.25)),
+
+            solid(self.position + glm.vec3(0.25, -1.7, 0.25)), solid(self.position + glm.vec3(0.25, -1.7, -0.25)),
+            solid(self.position + glm.vec3(-0.25, -1.7, -0.25)), solid(self.position + glm.vec3(0.25, -1.7, -0.25))
+        ]
+
+        if h[8] or h[9] or h[10] or h[11]:
+            self.vel.y = 0
+        else:
+            self.vel.y += GRAVITY
+        
         if key_state[pg.K_w]:
-            self.move_forward(vel)
+            self.vel += forwardXZ * PLAYER_SPEED
         if key_state[pg.K_s]:
-            self.move_back(vel)
-        if key_state[pg.K_d]:
-            self.move_right(vel)
+            self.vel -= forwardXZ * PLAYER_SPEED
         if key_state[pg.K_a]:
-            self.move_left(vel)
-        if key_state[pg.K_e]:
-            self.move_up(vel)
-        if key_state[pg.K_q]:
-            self.move_down(vel)
+            self.vel -= leftXZ * PLAYER_SPEED
+        if key_state[pg.K_d]:
+            self.vel += leftXZ * PLAYER_SPEED
+        if key_state[pg.K_SPACE]:
+            self.vel -= GRAVITY * 5
+
+        self.position += self.vel
+
+        if h[0] or h[1] or h[4] or h[5]:
+            self.position.x -= self.vel.x * 1.01
+
+        self.vel *= glm.vec3(0.1, 1, 0.1)
